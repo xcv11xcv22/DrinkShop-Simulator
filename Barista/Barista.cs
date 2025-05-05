@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using DrinkShop.Events;
 namespace DrinkShop
 {
 
-    public class Barista
+    public class Barista : IDrinkExecutor, IDrinkMaker
     {
         private Queue<ICommand> orderQueue = new Queue<ICommand>();
         private Stack<ICommand> canceledStack = new Stack<ICommand>();
+        private ISealingMachine sealingMachine;
+
         private bool isProcessing = false;
         private Random rand = new Random();
 
@@ -18,10 +20,11 @@ namespace DrinkShop
 
         private List<IBaristaTrait> traits = new List<IBaristaTrait>();
 
-        public Barista(string name, BaristaLevel level)
+        public Barista(string name, BaristaLevel level, ISealingMachine sealingMachine)
         {
             Name = name;
             Level = level;
+            this.sealingMachine = sealingMachine;
         }
         public void EnqueueOrder(ICommand command)
         {
@@ -103,7 +106,7 @@ namespace DrinkShop
                 {
                     ICommand currentCommand = orderQueue.Peek();
 
-                    if (currentCommand is OrderCommand orderCommand)
+                    if (currentCommand is BaristaOrderCommand orderCommand)
                     {
                         double baseDelay = orderCommand.GetMakingTime();
                         double speedModifier = GetSpeedModifier();
@@ -176,9 +179,11 @@ namespace DrinkShop
             Drink drink = builder.GetResult();
 
             Console.WriteLine($"Barista:{Name}: Finished making {drink.Name} (Base: {drink.Base}, Sweetness: {drink.Sweetness}, Ice: {drink.Ice}, " +
-                            $"Pearl: {(drink.HasPearl ? "Yes" : "No")}, Matcha: {(drink.HasMatcha ? "Yes" : "No")}).");
+                $"Pearl: {(drink.HasPearl ? "Yes" : "No")}, Matcha: {(drink.HasMatcha ? "Yes" : "No")}).");
 
-            customer.ReceiveDrink(drink);
+            
+            sealingMachine.EnqueueDrink(drink, customer); // 改成交給封杯機
+            EventBus.Instance.Publish(new DrinkCompletedEvent(customer, drink));
         }
         private double GetVipFailModifier(DrinkOrder order)
         {

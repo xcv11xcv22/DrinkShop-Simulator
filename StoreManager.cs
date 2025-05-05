@@ -1,23 +1,48 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using DrinkShop.Events;
 namespace DrinkShop
 {
     public class StoreManager
     {
         private List<Customer> customers = new List<Customer>();
-        private List<Barista> baristas = new List<Barista>();
+        private List<IDrinkMaker> devices = new List<IDrinkMaker>();
+
         private Random rand = new Random();
 
+        private IOrderDispatcher  orderDispatcher;
+        public StoreManager(IOrderDispatcher orderDispatcher){
+            this.orderDispatcher = orderDispatcher;
+        }
         public void AddCustomer(Customer customer)
         {
             customers.Add(customer);
+            EventBus.Instance.Publish(new CustomerEnterEvent(customer));
         }
 
-        public void AddBarista(Barista barista)
+        public void AddDevice(IDrinkMaker drinkMaker)
         {
-            baristas.Add(barista);
+            devices.Add(drinkMaker);
+        }
+        private IDrinkMaker SelectBestDevice()
+        {
+            // 優先找 queue 最短的 Barista
+            var barista = devices
+                .Where(d => d is Barista)
+                .OrderBy(d => d.GetQueueCount())
+                .FirstOrDefault();
+
+            if (barista != null && barista.GetQueueCount() < 1) // 若人力負載還OK，就派給人
+                return barista;
+
+            // 否則找機器
+            var machine = devices
+                .Where(d => d is not Barista)
+                .OrderBy(d => d.GetQueueCount())
+                .FirstOrDefault();
+
+            return machine ?? barista; // fallback 萬一沒機器，就還是找人（不管幾杯）
         }
 
         public async Task MonitorCustomersAsync()
@@ -57,13 +82,20 @@ namespace DrinkShop
                         // 安排製作（如果還沒安排過）
                         if (!c.HasOrderAssigned)
                         {
-                            var selectedBarista = baristas
-                            .OrderBy(x => x.GetQueueCount())
-                            .FirstOrDefault();
-                            OrderCommand command = new OrderCommand(selectedBarista, c);
-                            selectedBarista.EnqueueOrder(command);
-
-                            c.HasOrderAssigned = true;
+                            // var device = SelectBestDevice(); // 自動選擇設備！
+                          
+                            // if (device != null)
+                            // {
+                            //     ICommand command1 = OrderCommandFactory.Create(device, c);
+                            //     // OrderCommand command = new OrderCommand(device, c);
+                            //     device.EnqueueOrder(command1);
+                            //     c.HasOrderAssigned = true;
+                            // }
+                            // else
+                            // {
+                            //     Console.WriteLine("[StoreManager] 沒有可用設備！");
+                            // }
+                            orderDispatcher.DispatchOrder(c);
                         }
                     }
                 }

@@ -2,7 +2,8 @@ namespace DrinkShop
 {
     public class MatchaExpertTrait : IBaristaTrait
     {
-        public double AdjustMakingTime(DrinkOrder order, double currentTime)
+        public string Name => " Matcha";
+        public double AdjustTime(DrinkOrder order, double currentTime)
         {
             if (order.DrinkName.Contains("Matcha"))
             {

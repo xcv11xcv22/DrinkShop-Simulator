@@ -1,8 +1,8 @@
 namespace DrinkShop
 {
-    public interface IBaristaTrait
+    public interface IBaristaTrait : ITimeModifier
     {
-        double AdjustMakingTime(DrinkOrder order, double currentTime);
+        string Name { get; }
         double AdjustFailChance(DrinkOrder order, double currentFailChance);
     }
 }
