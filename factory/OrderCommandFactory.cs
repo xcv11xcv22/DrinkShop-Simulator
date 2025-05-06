@@ -1,5 +1,5 @@
 using System;
-namespace DrinkShop
+namespace DrinkShop.Factory
 {
     public static class OrderCommandFactory
     {

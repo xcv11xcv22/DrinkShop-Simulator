@@ -6,7 +6,7 @@ namespace DrinkShop
     {
         private readonly IAutoDrinkMaker _machine;
         private readonly Customer _customer;
-
+        private bool _executed = false;
         public MachineOrderCommand(IAutoDrinkMaker machine, Customer customer)
         {
             _machine = machine;
@@ -15,8 +15,26 @@ namespace DrinkShop
 
         public void Execute()
         {
-            Console.WriteLine($"[Machine] Auto-processing drink for {_customer.name}...");
-            _machine.ProcessAutoDrink(_customer);
+        
+            if (!_executed)
+            {
+                // drinkExecutor.MakeDrinkForCustomer(_customer);
+                
+                _executed = true;
+                if (_customer.Pay(_customer.Order.Price))
+                {
+                    Console.WriteLine($"[Machine] Auto-processing drink for {_customer.name}...");
+                    _machine.ProcessAutoDrink(_customer);
+                    StoreFinance.Instance.ReceivePayment(_customer.Order.Price);
+                    _executed = true;
+                }
+                else
+                {
+                    Console.WriteLine($"❌ {_customer.name} 錢不夠，無法購買 {_customer.Order.DrinkName}");
+                    _customer.SetAngry();
+                }
+
+            }
         }
 
         public void Undo()

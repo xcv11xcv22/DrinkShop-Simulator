@@ -13,11 +13,15 @@ namespace DrinkShop
         public bool HasOrderAssigned;
         public LeaveReason LeaveReason { get; private set; } = LeaveReason.None;
         private bool _isCanceled = false;
+        public double Wallet { get; private set; } = 100;
+
+       
         public Customer(string iname)
         {
             name = iname;
             GenerateRandomOrder();
             ChangeState(new WaitingState());
+            
         }
 
         private void GenerateRandomOrder()
@@ -25,7 +29,7 @@ namespace DrinkShop
             // "Milk Tea", "Green Tea", "Black Tea", "Oolong Tea", "Taro Milk", "Matcha Tea" 
             string[] drinks = {"Milk Pearl Tea", "Milk Tea", "Green Tea", "Black Tea", "Oolong Tea", "Taro Milk", "Matcha Tea" };
             string[] sweetnessLevels = { "Full Sugar", "Half Sugar", "Less Sugar", "No Sugar" };
-            string[] iceLevels = { "Regular Ice", "Less Ice", "No Ice", "Hot" };
+            string[] iceLevels = { "More Ice", "Regular Ice", "Less Ice", "No Ice", "Hot" };
 
             string randomDrink = drinks[rand.Next(drinks.Length)];
             string randomSweetness = sweetnessLevels[rand.Next(sweetnessLevels.Length)];
@@ -84,6 +88,20 @@ namespace DrinkShop
         public void PrintOrder()
         {
             Console.WriteLine($"{name} Order: {Order}");
+        }
+        public bool Pay(double amount)
+        {
+            if (Wallet >= amount)
+            {
+                Wallet -= amount;
+                return true;
+            }
+            return false;
+        }
+
+        public void Refund(double amount)
+        {
+            Wallet += amount;
         }
     }
 }

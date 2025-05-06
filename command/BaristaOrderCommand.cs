@@ -18,8 +18,19 @@ namespace DrinkShop
         {
             if (!_executed)
             {
-                drinkExecutor.MakeDrinkForCustomer(_customer);
                 _executed = true;
+                if (_customer.Pay(_customer.Order.Price))
+                {
+                    drinkExecutor.MakeDrinkForCustomer(_customer);
+                    StoreFinance.Instance.ReceivePayment(_customer.Order.Price);
+                    _executed = true;
+                }
+                else
+                {
+                    Console.WriteLine($"❌ {_customer.name} 錢不夠，無法購買 {_customer.Order.DrinkName}");
+                    _customer.SetAngry();
+                }
+
             }
         }
 

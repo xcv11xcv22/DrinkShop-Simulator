@@ -1,10 +1,14 @@
 using DrinkShop.Events;
+using DrinkShop.Equipment;
+using DrinkShop.Factory;
+
 namespace DrinkShop
 {
     public class VendingMachine : IDrinkMaker, IAutoDrinkMaker
     {
         private Queue<ICommand> orderQueue = new Queue<ICommand>();
         bool isProcessing = false;
+        private readonly IIceMachine _iceMachine;
         public void EnqueueOrder(ICommand command)
         {
             orderQueue.Enqueue(command);
@@ -17,8 +21,9 @@ namespace DrinkShop
             }
         }
         private string Name ;
-        public VendingMachine(string name){
+        public VendingMachine(string name, IIceMachine iceMachine){
             Name = name;
+            _iceMachine = iceMachine;
         }
         public int GetQueueCount()
         {
@@ -53,20 +58,20 @@ namespace DrinkShop
             Console.WriteLine($"VendingMachine {Name} Start making {customer.Order.DrinkName}...");
 
            
-            IDrinkBuilder builder;
-
-            if (customer.Order.DrinkName.Contains("Taro Milk"))
-            {
-                builder = new PearlMilkTeaBuilder(customer.Order);
-            }
-            else if (customer.Order.DrinkName.Contains("Matcha"))
-            {
-                builder = new MatchaLatteBuilder(customer.Order);
-            }
-            else
-            {
-                builder = new BasicDrinkBuilder(customer.Order);
-            }
+            // IDrinkBuilder builder;
+            IDrinkBuilder builder = DrinkBuilderFactory.Create(customer.Order, _iceMachine);
+            // if (customer.Order.DrinkName.Contains("Taro Milk"))
+            // {
+            //     builder = new PearlMilkTeaBuilder(customer.Order, _iceMachine);
+            // }
+            // else if (customer.Order.DrinkName.Contains("Matcha"))
+            // {
+            //     builder = new MatchaLatteBuilder(customer.Order, _iceMachine);
+            // }
+            // else
+            // {
+            //     builder = new BasicDrinkBuilder(customer.Order, _iceMachine);
+            // }
 
             builder.AddBase();
             builder.AddSweetness(customer.Order.Sweetness);

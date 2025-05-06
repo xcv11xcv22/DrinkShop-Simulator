@@ -22,8 +22,10 @@ namespace DrinkShop.Events
         {
             Subscribe<DrinkCompletedEvent>(LogDrinkCompleted);
             Subscribe<CustomerEnterEvent>(LogCustomerEnter);
+            Subscribe<FeatureUnavailableEvent>(LogFeatureUnavailable);
+            Subscribe<PaymentEvent>(LogPayment);
         }
-
+   
         public void Subscribe<T>(Action<T> handler) where T : IEvent
         {
             var type = typeof(T);
@@ -61,7 +63,12 @@ namespace DrinkShop.Events
                 _logQueue.Enqueue(logEntry);
             }
         }
-
+        private void LogFeatureUnavailable(FeatureUnavailableEvent e)
+        {
+            var logEntry = $"[Unavailable] {DateTime.Now:HH:mm:ss} {e.Feature} 停用原因：{e.Reason}\n";
+            lock (_logLock)
+                _logQueue.Enqueue(logEntry);
+        }
         private void LogCustomerEnter(CustomerEnterEvent e)
         {
             var logEntry = $"[CustomerEnter] {DateTime.Now:HH:mm:ss} Accepted customer {e.Customer.name} for drink {e.Customer.Order.DrinkName}\n";
@@ -70,7 +77,23 @@ namespace DrinkShop.Events
                 _logQueue.Enqueue(logEntry);
             }
         }
-
+        private void LogDrinkFailed(DrinkFailedEvent e)
+        {
+            var logEntry = $"[DrinkFailed] {DateTime.Now:HH:mm:ss} {e.Customer.name} failed drink: {e.Reason}\n";
+            lock (_logLock)
+            {
+                _logQueue.Enqueue(logEntry);
+            }
+        }
+          private void LogPayment(PaymentEvent e)
+        {
+            string temp = e.Price > 0 ? "增加" : "減少";
+            var logEntry = $"[Payment] {DateTime.Now:HH:mm:ss} 營收 {temp} {e.Price}  總營收: {e.Total}\n";
+            lock (_logLock)
+            {
+                _logQueue.Enqueue(logEntry);
+            }
+        }
         private async Task RunLogAsync()
         {
             while (true)

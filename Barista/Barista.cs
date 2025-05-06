@@ -1,7 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using DrinkShop.Events;
+using DrinkShop.Equipment;
+using DrinkShop.Factory;
 namespace DrinkShop
 {
 
@@ -13,18 +13,19 @@ namespace DrinkShop
 
         private bool isProcessing = false;
         private Random rand = new Random();
-
+        private readonly IIceMachine _iceMachine;
         public string Name { get; private set; }
         public BaristaLevel Level { get; private set; }
         public int Exp { get; private set; } = 0;
 
         private List<IBaristaTrait> traits = new List<IBaristaTrait>();
 
-        public Barista(string name, BaristaLevel level, ISealingMachine sealingMachine)
+        public Barista(string name, BaristaLevel level, ISealingMachine sealingMachine, IIceMachine iceMachine)
         {
             Name = name;
             Level = level;
             this.sealingMachine = sealingMachine;
+            _iceMachine = iceMachine;
         }
         public void EnqueueOrder(ICommand command)
         {
@@ -134,6 +135,8 @@ namespace DrinkShop
         {
             if (customer.HasLeft())
             {
+                StoreFinance.Instance.Refund(customer.Order.Price);
+                customer.Refund(customer.Order.Price);
                 Console.WriteLine($"Barista:{Name}: Customer already left. Skip making {customer.Order.DrinkName}.");
                 return;
             }
@@ -142,21 +145,8 @@ namespace DrinkShop
 
             Random rand = new Random();
            
-            IDrinkBuilder builder;
-
-            if (customer.Order.DrinkName.Contains("Taro Milk"))
-            {
-                builder = new PearlMilkTeaBuilder(customer.Order);
-            }
-            else if (customer.Order.DrinkName.Contains("Matcha"))
-            {
-                builder = new MatchaLatteBuilder(customer.Order);
-            }
-            else
-            {
-                builder = new BasicDrinkBuilder(customer.Order);
-            }
-        
+            IDrinkBuilder builder = DrinkBuilderFactory.Create(customer.Order, _iceMachine);
+    
             double adjustedFailChance = builder.FailChance * GetLevelFailModifier() *GetVipFailModifier(customer.Order);
             foreach (var trait in traits)
             {

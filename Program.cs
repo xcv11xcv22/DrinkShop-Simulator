@@ -1,6 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using DrinkShop;
+﻿
+using DrinkShop.Equipment;
 
 namespace DrinkShop
 {
@@ -9,16 +8,16 @@ namespace DrinkShop
         static async Task Main(string[] args)
         {
             Console.WriteLine("Welcome to Drink Shop Simulator!");
-
+            IIceMachine iceMachine = new DefaultIceMachine();
             ISealingMachine sealingMachine = new SealingMachine();
-            Barista barista1 = new Barista("Alice", BaristaLevel.Professional, sealingMachine);
-            Barista barista2 = new Barista("Bob", BaristaLevel.Beginner, sealingMachine);
-            Barista barista3 = new Barista("Charlie", BaristaLevel.Beginner, sealingMachine);
+            Barista barista1 = new Barista("Alice", BaristaLevel.Professional, sealingMachine, iceMachine);
+            Barista barista2 = new Barista("Bob", BaristaLevel.Beginner, sealingMachine, iceMachine);
+            Barista barista3 = new Barista("Charlie", BaristaLevel.Beginner, sealingMachine, iceMachine);
             // Barista barista4 = new Barista("Boss", BaristaLevel.Master);
-            Barista barista5 = new Barista("AOA", BaristaLevel.Beginner, sealingMachine);
+            Barista barista5 = new Barista("AOA", BaristaLevel.Beginner, sealingMachine, iceMachine);
 
-            VendingMachine vendingMachine1 = new VendingMachine("robotA");
-            VendingMachine vendingMachine2 = new VendingMachine("robotB");
+            VendingMachine vendingMachine1 = new VendingMachine("robotA", iceMachine);
+            VendingMachine vendingMachine2 = new VendingMachine("robotB", iceMachine);
             MatchaExpertTrait matchaExpertTrait = new MatchaExpertTrait();
             barista1.AddTrait(matchaExpertTrait);
             barista2.AddTrait(matchaExpertTrait);
