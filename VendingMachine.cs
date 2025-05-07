@@ -57,22 +57,7 @@ namespace DrinkShop
 
             Console.WriteLine($"VendingMachine {Name} Start making {customer.Order.DrinkName}...");
 
-           
-            // IDrinkBuilder builder;
             IDrinkBuilder builder = DrinkBuilderFactory.Create(customer.Order, _iceMachine);
-            // if (customer.Order.DrinkName.Contains("Taro Milk"))
-            // {
-            //     builder = new PearlMilkTeaBuilder(customer.Order, _iceMachine);
-            // }
-            // else if (customer.Order.DrinkName.Contains("Matcha"))
-            // {
-            //     builder = new MatchaLatteBuilder(customer.Order, _iceMachine);
-            // }
-            // else
-            // {
-            //     builder = new BasicDrinkBuilder(customer.Order, _iceMachine);
-            // }
-
             builder.AddBase();
             builder.AddSweetness(customer.Order.Sweetness);
             builder.AddIce(customer.Order.Ice);

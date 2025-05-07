@@ -26,13 +26,13 @@ namespace DrinkShop
         {
             if (!_iceMachine.CanDispense(level))
             {
-                Console.WriteLine("❄️ 冰塊不足，無法加冰，已跳過。");
+                Console.WriteLine("冰塊不足，無法加冰，已跳過。");
                 EventBus.Instance.Publish(new FeatureUnavailableEvent("IceMachine", "冰塊不足"));
                 return;
             }
             _iceMachine.Dispense(level);
             _drink.Ice = level;
-            Console.WriteLine($"✅ 已加冰（{level}），剩餘冰塊：{_iceMachine.IceAmount}");
+            Console.WriteLine($"已加冰（{level}），剩餘冰塊：{_iceMachine.IceAmount}");
         }
         public virtual void Mix() { /* 留空 */ }
 

@@ -18,8 +18,6 @@ namespace DrinkShop
         
             if (!_executed)
             {
-                // drinkExecutor.MakeDrinkForCustomer(_customer);
-                
                 _executed = true;
                 if (_customer.Pay(_customer.Order.Price))
                 {
@@ -37,14 +35,25 @@ namespace DrinkShop
             }
         }
 
-        public void Undo()
+         public void Undo()
         {
-            Console.WriteLine($"[Machine] Cannot undo automatic machine operation for {_customer.name}.");
+            if (!_executed)
+            {
+                Console.WriteLine($"[Undo] Order for {_customer.name} canceled before execution.");
+                _customer.MarkCanceled();
+            }
+            else
+            {
+                Console.WriteLine($"[Undo] Too late to cancel {_customer.name}, drink already made.");
+            }
         }
-
         public void Redo()
         {
-            Console.WriteLine($"[Machine] Cannot redo automatic machine operation for {_customer.name}.");
+            if (!_executed)
+            {
+                Console.WriteLine($"[Machine] Reprocessing {_customer.name}'s order...");
+                Execute();
+            }
         }
     }
 }

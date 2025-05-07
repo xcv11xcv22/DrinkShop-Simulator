@@ -15,7 +15,9 @@ namespace DrinkShop
         private bool _isCanceled = false;
         public double Wallet { get; private set; } = 100;
 
-       
+        public int ReviewScore { get; private set; } = -1;
+
+      
         public Customer(string iname)
         {
             name = iname;
@@ -23,7 +25,12 @@ namespace DrinkShop
             ChangeState(new WaitingState());
             
         }
-
+        public void SubmitReview(int score)
+        {
+            ReviewScore = Math.Clamp(score, 1, 5);
+            Console.WriteLine($"顧客 {name} 留下評分：{ReviewScore} 分");
+            ReviewManager.Instance.Record(this, ReviewScore);
+        }
         private void GenerateRandomOrder()
         {
             // "Milk Tea", "Green Tea", "Black Tea", "Oolong Tea", "Taro Milk", "Matcha Tea" 
@@ -62,6 +69,7 @@ namespace DrinkShop
         public void ChangeState(ICustomerState newState)
         {
             _currentState = newState;
+           
             _currentState.OnEnter(this);
         }
 
@@ -73,6 +81,14 @@ namespace DrinkShop
         public void ReceiveDrink(Drink drink)
         {
             _currentState.ReceiveDrink(this, drink);
+            int score = 5;
+            if (Patience < (Patience/2)) score -= 1;
+             if(_currentState is ComplainState){
+                score -= 2;
+            }
+            // if (OrderFailedCount > 0) score -= OrderFailedCount;
+
+            SubmitReview(Math.Max(score, 1));
         }
 
         public void ReceiveDelay()

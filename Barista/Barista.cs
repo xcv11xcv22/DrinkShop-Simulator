@@ -137,11 +137,12 @@ namespace DrinkShop
             {
                 StoreFinance.Instance.Refund(customer.Order.Price);
                 customer.Refund(customer.Order.Price);
+                
                 Console.WriteLine($"Barista:{Name}: Customer already left. Skip making {customer.Order.DrinkName}.");
                 return;
             }
 
-            Console.WriteLine($"Barista: Start making {customer.Order.DrinkName}...");
+            Console.WriteLine($"Barista{Name}: Start making {customer.Order.DrinkName}...");
 
             Random rand = new Random();
            

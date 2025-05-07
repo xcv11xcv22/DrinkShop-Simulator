@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DrinkShop.Events;
+using DrinkShop.Equipment;
 namespace DrinkShop
 {
     public class StoreManager
@@ -12,8 +13,11 @@ namespace DrinkShop
         private Random rand = new Random();
 
         private IOrderDispatcher  orderDispatcher;
-        public StoreManager(IOrderDispatcher orderDispatcher){
+        private IIceMachine iceMachine;
+        private uint count = 0;
+        public StoreManager(IOrderDispatcher orderDispatcher, IIceMachine iceMachine){
             this.orderDispatcher = orderDispatcher;
+            this.iceMachine = iceMachine;
         }
         public void AddCustomer(Customer customer)
         {
@@ -82,24 +86,14 @@ namespace DrinkShop
                         // 安排製作（如果還沒安排過）
                         if (!c.HasOrderAssigned)
                         {
-                            // var device = SelectBestDevice(); // 自動選擇設備！
-                          
-                            // if (device != null)
-                            // {
-                            //     ICommand command1 = OrderCommandFactory.Create(device, c);
-                            //     // OrderCommand command = new OrderCommand(device, c);
-                            //     device.EnqueueOrder(command1);
-                            //     c.HasOrderAssigned = true;
-                            // }
-                            // else
-                            // {
-                            //     Console.WriteLine("[StoreManager] 沒有可用設備！");
-                            // }
                             orderDispatcher.DispatchOrder(c);
                         }
                     }
                 }
-
+                count++;
+                if(count % 20 == 0){
+                    iceMachine.Refill(100);
+                }
                 await Task.Delay(1000);
             }
         }

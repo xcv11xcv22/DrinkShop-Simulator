@@ -17,7 +17,9 @@ namespace DrinkShop
 
             if (customer.Patience <= 0)
             {
-                  customer.SetAngry();
+
+                customer.SetAngry();
+                customer.SubmitReview(1);
             }
             if(rand.NextDouble() > 0.5)
                 secondsPassed++;

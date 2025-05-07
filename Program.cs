@@ -25,7 +25,7 @@ namespace DrinkShop
 
             var makers = new List<IDrinkMaker> { barista1, barista2, barista3, barista5, vendingMachine1, vendingMachine2 };
             IOrderDispatcher dispatcher = new SmartDispatcher(makers);
-            StoreManager storeManager = new StoreManager(dispatcher);
+            StoreManager storeManager = new StoreManager(dispatcher, iceMachine);
             // storeManager.AddBarista(barista6);
             // storeManager.AddBarista(barista7);
             StrategyCache.Instance.RegisterStrategy("Fruit Tea", 7, new FruitTeaStrategy());
@@ -38,7 +38,7 @@ namespace DrinkShop
                 customer.PrintOrder();
                 storeManager.AddCustomer(customer);
 
-                await Task.Delay(5000); // 每5秒進一個顧客
+                await Task.Delay(3000); // 每5秒進一個顧客
             }
 
             await Task.Delay(80000); // 模擬一段時間
