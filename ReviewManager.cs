@@ -16,5 +16,4 @@ namespace DrinkShop
         public double Average => _scores.Count > 0 ? _scores.Average() : 0;
     }
 
-
 }

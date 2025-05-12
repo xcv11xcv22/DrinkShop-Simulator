@@ -24,8 +24,9 @@ namespace DrinkShop.Events
             Subscribe<CustomerEnterEvent>(LogCustomerEnter);
             Subscribe<FeatureUnavailableEvent>(LogFeatureUnavailable);
             Subscribe<PaymentEvent>(LogPayment);
+            Subscribe<CustomerReviewEvent>(e => HandleReview(e.Customer));
         }
-   
+    
         public void Subscribe<T>(Action<T> handler) where T : IEvent
         {
             var type = typeof(T);
@@ -53,6 +54,17 @@ namespace DrinkShop.Events
                     handler.Invoke(eventObj);
                 }
             }
+        }
+        private void HandleReview(Customer customer)
+        {
+           int score = 5;
+            if (customer.Patience < (customer.Patience/2)) score -= 1;
+             if(customer.GetState() is ComplainState){
+                score -= 2;
+            }
+            // if (OrderFailedCount > 0) score -= OrderFailedCount;
+
+            customer.SubmitReview(Math.Max(score, 1));
         }
 
         private void LogDrinkCompleted(DrinkCompletedEvent e)

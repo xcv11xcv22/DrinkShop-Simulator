@@ -1,3 +1,4 @@
+using DrinkShop.Events;
 namespace DrinkShop
 {
     public class Customer
@@ -25,12 +26,7 @@ namespace DrinkShop
             ChangeState(new WaitingState());
             
         }
-        public void SubmitReview(int score)
-        {
-            ReviewScore = Math.Clamp(score, 1, 5);
-            Console.WriteLine($"顧客 {name} 留下評分：{ReviewScore} 分");
-            ReviewManager.Instance.Record(this, ReviewScore);
-        }
+     
         private void GenerateRandomOrder()
         {
             // "Milk Tea", "Green Tea", "Black Tea", "Oolong Tea", "Taro Milk", "Matcha Tea" 
@@ -72,7 +68,9 @@ namespace DrinkShop
            
             _currentState.OnEnter(this);
         }
-
+        public ICustomerState GetState(){
+            return _currentState;
+        }
         public void Update()
         {
             _currentState.Update(this);
@@ -81,16 +79,15 @@ namespace DrinkShop
         public void ReceiveDrink(Drink drink)
         {
             _currentState.ReceiveDrink(this, drink);
-            int score = 5;
-            if (Patience < (Patience/2)) score -= 1;
-             if(_currentState is ComplainState){
-                score -= 2;
-            }
-            // if (OrderFailedCount > 0) score -= OrderFailedCount;
-
-            SubmitReview(Math.Max(score, 1));
+            EventBus.Instance.Publish(new CustomerReviewEvent(this));
+    
         }
-
+        public void SubmitReview(int score)
+        {
+            ReviewScore = Math.Clamp(score, 1, 5);
+            Console.WriteLine($"顧客 {name} 留下評分：{ReviewScore} 分");
+            ReviewManager.Instance.Record(this, ReviewScore);
+        }
         public void ReceiveDelay()
         {
             _currentState.ReceiveDelay(this);
